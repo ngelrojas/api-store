@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "5001:5000"
