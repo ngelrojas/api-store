@@ -1,4 +1,5 @@
 from flask_smorest import Blueprint, abort
+from flask_jwt_extended import jwt_required
 from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -11,6 +12,7 @@ blp = Blueprint("Tags", __name__, description="operations on tags")
 
 @blp.route("/store/<string:store_id>/tag")
 class TagsInStore(MethodView):
+    @jwt_required()
     @blp.response(200, TagSchema(many=True))
     def get(self, store_id):
         store = StoreModel.query.get_or_404(store_id)
