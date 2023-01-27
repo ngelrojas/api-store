@@ -10,7 +10,7 @@ from db import db
 blp = Blueprint("items", __name__, description="Operations on items")
 
 
-@blp.route("/items/<string:item_id>")
+@blp.route("/item/<string:item_id>")
 class Item(MethodView):
     @blp.response(200, ItemSchema)
     def get(self, item_id):
