@@ -1,9 +1,10 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from passlib.hash import pbkdf2_sha256
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt
 
 from db import db
+from blocklist import BLOCKLIST
 from models import UserModel
 from schemas import UserSchema
 
@@ -52,3 +53,13 @@ class User(MethodView):
         db.session.delete(user)
         db.session.commit()
         return {"message":"user deleted."}, 200
+
+
+@blp.route("/logout")
+class UserLogout(MethodView):
+    @jwt_required()
+    def post(self):
+        jti = get_jwt()["jti"]
+        BLOCKLIST.add(jti)
+        return {"message": "successfully logged out."}
+    
