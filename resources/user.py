@@ -1,3 +1,6 @@
+import os
+
+import requests
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from passlib.hash import pbkdf2_sha256
@@ -9,6 +12,21 @@ from models import UserModel
 from schemas import UserSchema
 
 blp = Blueprint("Users", __name__, description="Operations on users")
+
+
+def send_simple_message(to, subject, body):
+    domain = os.getenv("MAILGUN_DOMAIN")
+    api_key = os.getenv("MAILGUN_API_KEY")
+    return requests.post(
+        f"https://api.mailgun.net/v3/{domain}/messages",
+        auth=("api", api_key),
+        data={
+            "from": f"info rednodes <mailgun@{domain}>",
+            "to": [to],
+            "subject": subject,
+            "text": body
+        }
+    )
 
 
 @blp.route("/register")
