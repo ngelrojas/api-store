@@ -1,6 +1,7 @@
 import os
 
 import requests
+from flask import current_app
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from sqlalchemy import or_
@@ -11,6 +12,7 @@ from db import db
 from blocklist import BLOCKLIST
 from models import UserModel
 from schemas import UserSchema, UserRegisterSchema
+from tasks import send_user_registration_email
 
 blp = Blueprint("Users", __name__, description="Operations on users")
 
@@ -48,11 +50,9 @@ class UserRegister(MethodView):
         )
         db.session.add(user)
         db.session.commit()
-        send_simple_message(
-            to=user.email,
-            subject="Successfully signed up",
-            body=f"hi {user.username}! you have successfully signed up to the stores REST API."
-        )
+
+        current_app.queue.enqueue(send_user_registration_email, user.email, user.username)
+
         return {"message": "user created successfully."}, 201
 
 
